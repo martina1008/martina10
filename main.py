@@ -7,6 +7,25 @@ from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
 
+def custom_float_format(value):
+    # Format the value to display only 2 decimal places
+    return "{:.2f}".format(value)
+
+
+def to_numeric(data):
+    df = data.copy()
+    df['function'] = df['function'].map({'storage': 1, 'recreational center': 2, 'offices': 3,
+                                         'emergency service': 4, 'school': 5, 'others': 6})
+    df['building_shape'] = df['building_shape'].map(
+        {'rectangular/squared': 1, 'C L T': 2, 'circular or irregular': 3})
+    df['shading'] = df['shading'].map({'no': 0, 'yes': 1, 'partial': 2})
+    df['surrounding'] = df['surrounding'].map(
+        {'asfalt': 2, 'green': 1, 'other soil': 4, 'half green/half asfalt': 3})
+    df['usage'] = df['usage'].map({'rare': 0, 'half year': 2, 'all year': 1})
+    df['ceiling'] = df['ceiling'].map({'present': 1, 'not present': 0})
+    return df
+
+
 @st.cache_data
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -18,41 +37,65 @@ def convert_df(df):
 
 
 def insert_new_data():
-    if (st.session_state['name'] == '') or (st.session_state['shading'] == '') \
-            or (st.session_state['building_shape'] == '') \
-            or (st.session_state['gross_volume'] == '') or (st.session_state['avg_number_occupants'] == '') \
-            or (st.session_state['sv'] == '') or (st.session_state['eui'] == ''):
+    if (st.session_state['name'] == '') or (st.session_state['function'] is None) or (
+            st.session_state['building_shape'] is None) \
+            or (st.session_state['surface1floor'] == 0) or (st.session_state['gross_volume'] == 0) \
+            or (st.session_state['shading'] is None) or (st.session_state['surrounding'] is None) \
+            or (st.session_state['avg_occupants'] == 0) or (st.session_state['usage'] is None) \
+            or (st.session_state['generation_power'] == 0) or (st.session_state['ceiling'] is None) \
+            or (st.session_state['eui'] == 0):
         pass
     else:
         new_index = len(st.session_state['data'])
-        new_row = pd.Series({'Name': st.session_state.name,
-                             'Shading': st.session_state.shading,
-                             'Building_shape': st.session_state.building_shape,
-                             'Gross_volume': st.session_state.gross_volume,
-                             'Avg_number_occupants': st.session_state.avg_number_occupants,
-                             'S/V': st.session_state.sv,
+        new_row = pd.Series({'name': st.session_state.name,
+                             'function': st.session_state.function,
+                             'building_shape': st.session_state.building_shape,
+                             'surface1floor': st.session_state.surface1floor,
+                             'gross_volume': st.session_state.gross_volume,
+                             'shading': st.session_state.shading,
+                             'surrounding': st.session_state.surrounding,
+                             'avg_occupants': st.session_state.avg_occupants,
+                             'usage': st.session_state.usage,
+                             'generation_power': st.session_state.generation_power,
+                             'ceiling': st.session_state.ceiling,
                              'EUI': st.session_state.eui})
         st.session_state['data'].loc[new_index] = new_row
         # model re-training
-        new_X = st.session_state['data'][['Building_shape', 'Gross_volume', 'S/V',
-                                          'Shading', 'Avg_number_occupants']].values
+        new_X = to_numeric(st.session_state['data'])[['function', 'building_shape', 'surface1floor', 'gross_volume',
+                                                      'shading', 'surrounding', 'avg_occupants', 'usage',
+                                                      'generation_power', 'ceiling']].values
         new_y = st.session_state['data']['EUI'].values
         st.session_state['model'].fit(new_X, new_y)
 
 
 def prediction():
-    if (st.session_state['shading_pred'] is None) or (st.session_state['building_shape_pred'] is None) \
-            or (st.session_state['gross_volume_pred'] == 0) or (st.session_state['avg_number_occupants_pred'] == 0) \
-            or (st.session_state['sv_pred'] == 0):
+    if (st.session_state['function_pred'] is None) or (st.session_state['building_shape_pred'] is None) \
+            or (st.session_state['surface1floor_pred'] == 0) or (st.session_state['gross_volume_pred'] == 0) \
+            or (st.session_state['shading_pred'] is None) or (st.session_state['surrounding_pred'] is None) \
+            or (st.session_state['avg_occupants_pred'] == 0) or (st.session_state['usage_pred'] is None) \
+            or (st.session_state['generation_power_pred'] == 0) or (st.session_state['ceiling_pred'] is None):
         pass
     else:
+        function_inserted = \
+            {'storage': 1, 'recreational center': 2, 'offices': 3, 'emergency service': 4, 'school': 5, 'others': 6}[
+                st.session_state['function_pred']]
+        building_shape_inserted = {'rectangular/squared': 1, 'C L T': 2, 'circular or irregular': 3}[
+            st.session_state['building_shape_pred']]
+        surface1floor_inserted = st.session_state['surface1floor_pred']
+        gross_volume_inserted = st.session_state['gross_volume_pred']
+        shading_inserted = {'no': 0, 'yes': 1, 'partial': 2}[st.session_state['shading_pred']]
+        surrounding_inserted = {'asfalt': 2, 'green': 1, 'other soil': 4, 'half green/half asfalt': 3}[
+            st.session_state['surrounding_pred']]
+        avg_occupants_inserted = st.session_state['avg_occupants_pred']
+        usage_inserted = {'rare': 0, 'half year': 2, 'all year': 1}[st.session_state['usage_pred']]
+        generation_power_inserted = st.session_state['generation_power_pred']
+        ceiling_inserted = {'present': 1, 'not present': 0}[st.session_state['ceiling_pred']]
+
         st.session_state['prediction'] = st.session_state['model'].predict(
-            np.array([st.session_state['building_shape_pred'],
-                      st.session_state['gross_volume_pred'],
-                      st.session_state['sv_pred'],
-                      st.session_state['shading_pred'],
-                      st.session_state['avg_number_occupants_pred']
-                      ]).reshape(1, -1))
+            np.array([function_inserted, building_shape_inserted, surface1floor_inserted,
+                      gross_volume_inserted, shading_inserted, surrounding_inserted,
+                      avg_occupants_inserted, usage_inserted, generation_power_inserted,
+                      ceiling_inserted]).reshape(1, -1))
 
 
 st.set_page_config(layout="wide")
@@ -65,25 +108,38 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
     if uploaded_file.name.endswith('.xlsx'):
         if 'data' not in st.session_state:
             st.session_state['data'] = pd.read_excel(uploaded_file,
-                                                     usecols=['Name', 'Shading', 'Building_shape', 'Gross_volume',
-                                                              'Avg_number_occupants',
-                                                              'S/V', 'EUI'])
+                                                     usecols=['name', 'function', 'building_shape',
+                                                              'surface1floor', 'gross_volume', 'shading',
+                                                              'surrounding', 'avg_occupants', 'usage',
+                                                              'generation_power', 'ceiling', 'EUI'])
+
+            numerical_columns = st.session_state['data'].select_dtypes(include='float64').columns
+            st.session_state['data'][numerical_columns] = st.session_state['data'][numerical_columns].round(2)
+
         st.write("<h2 style='text-align: center;'>Dataset</h2>", unsafe_allow_html=True)
+
         # AgGrid(st.session_state['data'], height=500, fit_columns_on_grid_load=True)
         st.write(
             f"<div style='display: flex; justify-content: center; overflow-x: auto; height: {300}px;'>"
-            "<style>table.dataframe {text-align: center;}</style>"
+            "<style>table.dataframe {text-align: center; font-size: 12px;}</style>"
             + st.session_state['data'].to_html(classes='dataframe') +
             "</div>",
             unsafe_allow_html=True
         )
+
     if uploaded_file.name.endswith('.csv'):
         if 'data' not in st.session_state:
             st.session_state['data'] = pd.read_csv(uploaded_file,
-                                                   usecols=['Name', 'Shading', 'Building_shape', 'Gross_volume',
-                                                            'Avg_number_occupants',
-                                                            'S/V', 'EUI'])
+                                                   usecols=['name', 'function', 'building_shape',
+                                                            'surface1floor', 'gross_volume', 'shading',
+                                                            'surrounding', 'avg_occupants', 'usage',
+                                                            'generation_power', 'ceiling', 'EUI'])
+
+            numerical_columns = st.session_state['data'].select_dtypes(include='float64').columns
+            st.session_state['data'][numerical_columns] = st.session_state['data'][numerical_columns].round(2)
+
         st.write("<h3 style='text-align: center;'>Dataset</h3>", unsafe_allow_html=True)
+
         # AgGrid(st.session_state['data'], height=600, fit_columns_on_grid_load=True)
         st.write(
             f"<div style='display: flex; justify-content: center; overflow-x: auto; height: {300}px;'>"
@@ -107,8 +163,9 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
 
     # model training
     if 'model' not in st.session_state:
-        X = st.session_state['data'][
-            ['Building_shape', 'Gross_volume', 'S/V', 'Shading', 'Avg_number_occupants']].values
+        X = to_numeric(st.session_state['data'])[['function', 'building_shape', 'surface1floor', 'gross_volume',
+                                                  'shading', 'surrounding', 'avg_occupants', 'usage',
+                                                  'generation_power', 'ceiling']].values
         y = st.session_state['data']['EUI'].values
         model = RandomForestRegressor(random_state=42)
         model.fit(X, y)
@@ -119,20 +176,33 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
     st.write("<h2 style='text-align: center;'>Insert New Data</h2>", unsafe_allow_html=True)
     with st.form("Insert New Data", clear_on_submit=True):
         col1, col2 = st.columns(2)
-        name = col1.text_input('Name', key='name')
-        shading = col2.selectbox('Shading', (0, 1, 2, 3), index=None, key='shading')
-        building_shape = col1.selectbox('Building_shape', (1, 2, 3, 4, 5, 6, 7), index=None, key='building_shape')
-        gross_volume = col2.number_input('Gross_volume', min_value=0, step=10, key='gross_volume')
-        avg_number_occupants = col1.number_input('Avg_number_occupants', min_value=0, step=10,
-                                                 key='avg_number_occupants')
-        sv = col2.number_input('S/V', min_value=0, step=10, key='sv')
-        eui = col1.number_input('EUI', min_value=0.0, step=50.0, key='eui')
+        name = col1.text_input('name', key='name')
+        function = col2.selectbox('function', ('storage', 'recreational center', 'offices', 'emergency service',
+                                               'school', 'others'), index=None, key='function')
+        building_shape = col1.selectbox('building_shape', ('rectangular/squared', 'C L T', 'circular or irregular'),
+                                        index=None, key='building_shape')
+        surface1floor = col2.number_input('surface1floor', min_value=0, step=200,
+                                          key='surface1floor')
+        gross_volume = col1.number_input('gross_volume', min_value=0, step=1000,
+                                         key='gross_volume')
+        shading = col2.selectbox('shading', ('yes', 'no', 'partial'), index=None, key='shading')
+        surrounding = col1.selectbox('surrounding', ('asfalt', 'green', 'other soil', 'half green/half asfalt'),
+                                     index=None, key='surrounding')
+        avg_occupants = col2.number_input('avg_occupants', min_value=0, step=10,
+                                          key='avg_occupants')
+        usage = col1.selectbox('usage', ('rare', 'all year', 'half year'), index=None, key='usage')
+        generation_power = col2.number_input('generation_power', min_value=0, step=50, key='generation_power')
+        ceiling = col1.selectbox('ceiling', ('present', 'not present'), index=None, key='ceiling')
+        eui = col2.number_input('EUI', min_value=0.0, step=50.0, key='eui')
         submit_button = col1.form_submit_button('Submit', on_click=insert_new_data)
         if submit_button:
-            if (st.session_state['name'] == '') or (st.session_state['shading'] == '') or (
-                    st.session_state['building_shape'] == '') \
-                    or (st.session_state['gross_volume'] == '') or (st.session_state['avg_number_occupants'] == '') \
-                    or (st.session_state['sv'] == '') or (st.session_state['eui'] == ''):
+            if (st.session_state['name'] == '') or (st.session_state['function'] is None) or (
+                    st.session_state['building_shape'] is None) \
+                    or (st.session_state['surface1floor'] == 0) or (st.session_state['gross_volume'] == 0) \
+                    or (st.session_state['shading'] is None) or (st.session_state['surrounding'] is None) \
+                    or (st.session_state['avg_occupants'] == 0) or (st.session_state['usage'] is None) \
+                    or (st.session_state['generation_power'] == 0) or (st.session_state['ceiling'] is None) \
+                    or (st.session_state['eui'] == 0):
                 error = st.error('Fill the Missing Fields')
                 time.sleep(5)
                 error.empty()
@@ -145,65 +215,76 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
 
     st.write("<h2 style='text-align: center;'>Benchmarking</h2>", unsafe_allow_html=True)
     colors = ['lightgrey' for _ in range(st.session_state['data'].shape[0])]
-    with (st.expander('Select a Building for the Benchmarking')):
-        building = st.selectbox(
-            "Select a Building for the Benchmarking",
-            [name for name in st.session_state['data']['Name']],
-            index=None,
-            label_visibility='collapsed'
-        )
 
-        sorted_data = st.session_state['data'].sort_values(by='EUI').reset_index(drop=True)
-        mean_eui = st.session_state['data']['EUI'].mean()
+    building = st.selectbox(
+        "Select a Building for the Benchmarking",
+        [name for name in st.session_state['data']['name']],
+        index=None,
+        label_visibility='collapsed'
+    )
 
-        if building:
-            ind = sorted_data.loc[building == sorted_data['Name']].index[0]
-            eui = sorted_data.loc[ind, 'EUI']
-            delta_perc = (eui - mean_eui) / mean_eui * 100
-            colors[ind] = 'red'
-            fig = px.bar(sorted_data, x=sorted_data['EUI'])
-            fig.add_vline(x=mean_eui, line=dict(color='red', width=3))
-            fig.update_traces(marker=dict(color=colors, line=dict(width=0.5)), width=0.8)
-            fig.update_layout(xaxis_title='EUI', yaxis_title='Building', width=1100, height=600)
-            st.plotly_chart(fig)
+    sorted_data = st.session_state['data'].sort_values(by='EUI').reset_index(drop=True)
+    mean_eui = st.session_state['data']['EUI'].mean()
 
-            col1, col2 = st.columns(2)
-            col1.dataframe(sorted_data[['Name', 'EUI']], height=245)
+    if building:
+        ind = sorted_data.loc[building == sorted_data['name']].index[0]
+        eui = sorted_data.loc[ind, 'EUI']
+        delta_perc = (eui - mean_eui) / mean_eui * 100
+        colors[ind] = 'red'
+        fig = px.bar(sorted_data, x=sorted_data['EUI'])
+        fig.add_vline(x=mean_eui, line=dict(color='red', width=3))
+        fig.update_traces(marker=dict(color=colors, line=dict(width=0.5)), width=0.8)
+        fig.update_layout(xaxis_title='EUI', yaxis_title='Building', width=1100, height=600)
+        st.plotly_chart(fig)
 
-            with col2.container(border=True):
-                st.write(f"<span style='font-size:{25}px;'>Building: {building}</span>", unsafe_allow_html=True)
-                st.write(f"<span style='font-size:{25}px;'>Position: {ind}</span>", unsafe_allow_html=True)
-                st.write(f"<span style='font-size:{25}px;'>EUI: {round(eui, 2)}</span>", unsafe_allow_html=True)
-                if eui > mean_eui:
-                    color = 'red'
-                    arrow_symbol = '&uarr;'  # Upward arrow symbol
-                else:
-                    color = 'green'
-                    arrow_symbol = '&darr;'  # Downward arrow symbol
-                st.write(
-                    f"<span style='font-size:25px;'>% Change from the Mean: <span style='color:{color};'> \
+        col1, col2 = st.columns(2)
+        col1.dataframe(sorted_data[['name', 'EUI']], height=245)
+
+        with col2.container(border=True):
+            st.write(f"<span style='font-size:{25}px;'>Building: {building}</span>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:{25}px;'>Position: {ind}</span>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:{25}px;'>EUI: {round(eui, 2)}</span>", unsafe_allow_html=True)
+            if eui > mean_eui:
+                color = 'red'
+                arrow_symbol = '&uarr;'  # Upward arrow symbol
+            else:
+                color = 'green'
+                arrow_symbol = '&darr;'  # Downward arrow symbol
+            st.write(
+                f"<span style='font-size:25px;'>% Change from the Mean: <span style='color:{color};'> \
 {arrow_symbol} {round(delta_perc, 2)}%</span></span>",
-                    unsafe_allow_html=True)
+                unsafe_allow_html=True)
 
     st.write('---')
 
     st.write("<h2 style='text-align: center;'>Prediction</h2>", unsafe_allow_html=True)
     with st.form("Insert the Data for the Prediction", clear_on_submit=True):
         col1, col2 = st.columns(2)
-        shading_pred = col2.selectbox('Shading', (0, 1, 2, 3), index=None, key='shading_pred')
-        building_shape_pred = col1.selectbox('Building_shape', (1, 2, 3, 4, 5, 6, 7), index=None,
-                                             key='building_shape_pred')
-        gross_volume_pred = col2.number_input('Gross_volume', min_value=0, step=10, key='gross_volume_pred')
-        avg_number_occupants_pred = col1.number_input('Avg_number_occupants', min_value=0, step=10,
-                                                      key='avg_number_occupants_pred')
-        sv_pred = col1.number_input('S/V', min_value=0, step=10, key='sv_pred')
+        function = col1.selectbox('function', ('storage', 'recreational center', 'offices', 'emergency service',
+                                               'school', 'others'), index=None, key='function_pred')
+        building_shape_pred = col2.selectbox('building_shape',
+                                             ('rectangular/squared', 'C L T', 'circular or irregular'),
+                                             index=None, key='building_shape_pred')
+        surface1floor_pred = col1.number_input('surface1floor', min_value=0, step=200,
+                                               key='surface1floor_pred')
+        gross_volume_pred = col2.number_input('gross_volume', min_value=0, step=1000,
+                                              key='gross_volume_pred')
+        shading_pred = col1.selectbox('shading', ('yes', 'no', 'partial'), index=None, key='shading_pred')
+        surrounding_pred = col2.selectbox('surrounding', ('asfalt', 'green', 'other soil', 'half green/half asfalt'),
+                                          index=None, key='surrounding_pred')
+        avg_occupants_pred = col1.number_input('avg_occupants', min_value=0, step=10,
+                                               key='avg_occupants_pred')
+        usage_pred = col2.selectbox('usage', ('rare', 'all year', 'half year'), index=None, key='usage_pred')
+        generation_power_pred = col1.number_input('generation_power', min_value=0, step=50, key='generation_power_pred')
+        ceiling_pred = col2.selectbox('ceiling', ('present', 'not present'), index=None, key='ceiling_pred')
         submit_button_pred = col1.form_submit_button('Submit', on_click=prediction)
 
     if submit_button_pred:
-        if (st.session_state['shading_pred'] is None) or (st.session_state['building_shape_pred'] is None) \
-                or (st.session_state['gross_volume_pred'] == 0) or (
-                st.session_state['avg_number_occupants_pred'] == 0) \
-                or (st.session_state['sv_pred'] == 0):
+        if (st.session_state['function_pred'] is None) or (st.session_state['building_shape_pred'] is None) \
+                or (st.session_state['surface1floor_pred'] == 0) or (st.session_state['gross_volume_pred'] == 0) \
+                or (st.session_state['shading_pred'] is None) or (st.session_state['surrounding_pred'] is None) \
+                or (st.session_state['avg_occupants_pred'] == 0) or (st.session_state['usage_pred'] is None) \
+                or (st.session_state['generation_power_pred'] == 0) or (st.session_state['ceiling_pred'] is None):
             error = st.error('Fill the Missing Fields')
             time.sleep(5)
             error.empty()
