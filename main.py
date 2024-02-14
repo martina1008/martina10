@@ -6,10 +6,12 @@ import time
 from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
-data_description = """
-    <font color="green">Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
-    Listed as below:</font>
 
+st.markdown("<font color='green'>Input Data: upload an .xlsx file containing numerical and categorical variables for each building.</font>")
+st.markdown("Listed as below:")
+
+data_description = """
+    
     + **name:** building name
 
     + **function:** activity done in the building [storage, recreational center, offices, school, others]
