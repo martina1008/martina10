@@ -7,7 +7,7 @@ from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
 data_description = """
-    <font color="red">Input Data: upload an .xlsx file containing numerical and categorical variables for each building.</font>
+    <span style="color:red">Input Data: upload an .xlsx file containing numerical and categorical variables for each building.</span>
     <br>
     Listed as below:
     <br>
