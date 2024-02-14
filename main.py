@@ -9,10 +9,8 @@ from sklearn.ensemble import RandomForestRegressor
 st.markdown("<span style='color:green'><b>Input Data:</b> upload an .xlsx file containing numerical and categorical variables for each building.</span>", unsafe_allow_html=True)
 st.markdown("<span style='color:green'><b>Listed as below:</b></span>", unsafe_allow_html=True)
 
-
 data_description = """
-    Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
-    Listed as below:
+    
 
     + **name:** building name
 
