@@ -6,6 +6,39 @@ import time
 from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
+data_description = """
+    Input Data: Upload an XLS file containing numerical and categorical variables for each building.
+    Listed as below:
+
+    + **name:** building name
+
+    + **function:** activity done in the building [storage, recreational center, offices, school, others]
+
+    + **building_shape:** the typology of the building [rectangular/squared, C L T, circular or irregular]
+
+    + **surface1floor:** [m2]
+
+    + **gross_volume:** total gross volume [m3]
+
+    + **shading:** presence of a shading next to the building, natural or artificial [no, yes, partial]
+
+    + **surrounding:** ground within 5m from the building [asphalt, green, half green/half asphalt]
+
+    + **avg_occupants:** number of people on average present in the building
+
+    + **usage:** how much the building is used [all year, half year, rare]
+
+    + **generation_power:** total power of generation system, heating [kW]
+
+    + **ceiling:** not heated ceiling [present – not present]
+
+    + **EUI:** Thermal energy/ heated surface [kWh/m2]
+    """
+
+
+def remove_description():
+    st.session_state['data_description'] = False
+
 
 def custom_float_format(value):
     # Format the value to display only 2 decimal places
@@ -101,7 +134,10 @@ def prediction():
 st.set_page_config(layout="wide")
 st.write("<h1 style='text-align: center;'>Benchmarking and Predictive Tool</h1>", unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader('Choose a file', label_visibility='hidden')
+if 'data_description' not in st.session_state:
+    st.write(data_description)
+
+uploaded_file = st.file_uploader('Choose a file', label_visibility='hidden', on_change=remove_description)
 if uploaded_file is not None and not (uploaded_file.name.endswith('.csv') or uploaded_file.name.endswith('.xlsx')):
     st.error('The Uploaded File must be a csv or xlsx File.')
 if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploaded_file.name.endswith('.xlsx')):
@@ -292,3 +328,4 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
             if 'prediction' in st.session_state:
                 st.write(f"<span style='font-size:{25}px;'>Predicted EUI: {round(st.session_state['prediction'][0], 2)}\
                 </span>", unsafe_allow_html=True)
+
