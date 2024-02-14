@@ -27,6 +27,7 @@ data_description = st.markdown("""
 """, unsafe_allow_html=True)
 
 def remove_description():
+    data_description.empty()
     st.session_state['data_description'] = False
 
 
