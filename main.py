@@ -6,38 +6,35 @@ import time
 from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
-data_description = """
-<span style='color:green'><b>Input Data:</b> upload an .xlsx file containing numerical and categorical variables for each building.</span>
-<br>
-<span style='color:green'><b>Listed as below:</b></span>
-<br>
-<br>
-+ <b>name:</b> building name
-<br>
-+ <b>function:</b> activity done in the building [storage, recreational center, offices, school, others]
-<br>
-+ <b>building_shape:</b> the typology of the building [rectangular/squared, C L T, circular or irregular]
-<br>
-+ <b>surface1floor:</b> [m²]
-<br>
-+ <b>gross_volume:</b> total gross volume [m³]
-<br>
-+ <b>shading:</b> presence of a shading next to the building, natural or artificial [no, yes, partial]
-<br>
-+ <b>surrounding:</b> ground within 5m from the building [asphalt, green, half green/half asphalt]
-<br>
-+ <b>avg_occupants:</b> number of people on average present in the building
-<br>
-+ <b>usage:</b> how much the building is used [all year, half year, rare]
-<br>
-+ <b>generation_power:</b> total power of generation system, heating [kW]
-<br>
-+ <b>ceiling:</b> not heated ceiling [present – not present]
-<br>
-+ <b>EUI:</b> Thermal energy/ heated surface [kWh/m²]
+data_description = 
+    st.markdown(''':red[*Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
+    Listed as below:]''')
 """
+    + **name:** building name
 
-st.write(data_description, unsafe_allow_html=True)
+    + **function:** activity done in the building [storage, recreational center, offices, school, others]
+
+    + **building_shape:** the typology of the building [rectangular/squared, C L T, circular or irregular]
+
+    + **surface1floor:** [m²]
+
+    + **gross_volume:** total gross volume [m³]
+
+    + **shading:** presence of a shading next to the building, natural or artificial [no, yes, partial]
+
+    + **surrounding:** ground within 5m from the building [asphalt, green, half green/half asphalt]
+
+    + **avg_occupants:** number of people on average present in the building
+
+    + **usage:** how much the building is used [all year, half year, rare]
+
+    + **generation_power:** total power of generation system, heating [kW]
+
+    + **ceiling:** not heated ceiling [present – not present]
+
+    + **EUI:** Thermal energy/ heated surface [kWh/m²]
+    """
+
 
 def remove_description():
     st.session_state['data_description'] = False
