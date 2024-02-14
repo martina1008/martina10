@@ -6,11 +6,13 @@ import time
 from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
-st.write("Input Data: upload an .xlsx file containing numerical and categorical variables for each building.", unsafe_allow_html=True)
-st.write("Listed as below:", unsafe_allow_html=True)
 
 
-data_description = """
+data_description = st.markdown("<span style='color:green'><b>Input Data:</b> upload an .xlsx file containing numerical and categorical variables for each building.</span>", unsafe_allow_html=True)
+st.markdown("<span style='color:green'><b>Listed as below:</b></span>", unsafe_allow_html=True)
+
+
+"""
     
 
     + **name:** building name
