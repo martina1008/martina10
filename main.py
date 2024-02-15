@@ -6,11 +6,9 @@ import time
 from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
-
-data_title = st.markdown(''':red[Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
-    Listed as below:]''')
-
 data_description = """
+    Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
+    Listed as below:
 
     + **name:** building name
 
@@ -38,18 +36,9 @@ data_description = """
     """
 
 
-
 def remove_description():
     st.session_state['data_description'] = False
-    
-def remove_data_title():
-    st.markdown['data_title'] = False    
 
-uploaded_file = st.file_uploader("Choose a file")
-if uploaded_file:
-    # Process the uploaded file
-    # After processing, if you want to remove the description:
-    remove_description()
 
 def custom_float_format(value):
     # Format the value to display only 2 decimal places
