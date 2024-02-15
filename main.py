@@ -7,10 +7,11 @@ from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
 
-data_title = st.markdown(''':red[*Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
+data_title = st.markdown(''':red[Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
     Listed as below:]''')
 
 data_description = """
+
     + **name:** building name
 
     + **function:** activity done in the building [storage, recreational center, offices, school, others]
@@ -36,11 +37,13 @@ data_description = """
     + **EUI:** Thermal energy/ heated surface [kWh/m²]
     """
 
-def remove_data_title():
-    st.markdown['data_title'] = False
+
 
 def remove_description():
     st.session_state['data_description'] = False
+    
+def remove_data_title():
+    st.markdown['data_title'] = False    
 
 uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file:
