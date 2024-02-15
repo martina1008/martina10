@@ -37,7 +37,7 @@ data_description = """
     """
 
 def remove_data_title():
-st.session_state['data_title'] = False
+st.markdown['data_title'] = False
 
 def remove_description():
     st.session_state['data_description'] = False
