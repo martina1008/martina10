@@ -42,6 +42,11 @@ st.session_state['data_title'] = False
 def remove_description():
     st.session_state['data_description'] = False
 
+uploaded_file = st.file_uploader("Choose a file")
+if uploaded_file:
+    # Process the uploaded file
+    # After processing, if you want to remove the description:
+    remove_description()
 
 def custom_float_format(value):
     # Format the value to display only 2 decimal places
