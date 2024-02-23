@@ -7,7 +7,7 @@ from io import BytesIO
 from sklearn.ensemble import RandomForestRegressor
 
 data_description = """
-    Input Data: upload an .xlsx file containing numerical and categorical variables for each building.
+    Input Data: Upload an XLS file containing numerical and categorical variables for each building.
     Listed as below:
 
     + **name:** building name
@@ -16,9 +16,9 @@ data_description = """
 
     + **building_shape:** the typology of the building [rectangular/squared, C L T, circular or irregular]
 
-    + **surface1floor:** [m²]
+    + **surface1floor:** [m2]
 
-    + **gross_volume:** total gross volume [m³]
+    + **gross_volume:** total gross volume [m3]
 
     + **shading:** presence of a shading next to the building, natural or artificial [no, yes, partial]
 
@@ -32,7 +32,7 @@ data_description = """
 
     + **ceiling:** not heated ceiling [present – not present]
 
-    + **EUI:** Thermal energy/ heated surface [kWh/m²]
+    + **EUI:** Thermal energy/ heated surface [kWh/m2]
     """
 
 
