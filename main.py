@@ -299,7 +299,7 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
         col1, col2 = st.columns(2)
         function = col1.selectbox('function', ('storage', 'recreational center', 'offices', 'emergency service',
                                                'school', 'others'), index=None, key='function_pred')
-        building_shape_pred = col2.selectbox('building_shape',
+        building_shape_pred = col2.selectbox('building shape',
                                              ('rectangular/squared', 'C L T', 'circular or irregular'),
                                              index=None, key='building_shape_pred')
         surface1floor_pred = col1.number_input('surface1floor [m²]', min_value=0, step=200,
