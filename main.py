@@ -37,7 +37,6 @@ data_description = """
     """
 
 
-
 def remove_description():
     st.session_state['data_description'] = False
 
@@ -303,9 +302,9 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
         building_shape_pred = col2.selectbox('building_shape',
                                              ('rectangular/squared', 'C L T', 'circular or irregular'),
                                              index=None, key='building_shape_pred')
-        surface1floor_pred = col1.number_input('surface1floor', min_value=0, step=200,
+        surface1floor_pred = col1.number_input('surface1floor m2', min_value=0, step=200,
                                                key='surface1floor_pred')
-        gross_volume_pred = col2.number_input('gross_volume', min_value=0, step=1000,
+        gross_volume_pred = col2.number_input('gross_volume m3', min_value=0, step=1000,
                                               key='gross_volume_pred')
         shading_pred = col1.selectbox('shading', ('yes', 'no', 'partial'), index=None, key='shading_pred')
         surrounding_pred = col2.selectbox('surrounding', ('asfalt', 'green', 'other soil', 'half green/half asfalt'),
