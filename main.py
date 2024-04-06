@@ -216,19 +216,19 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
         name = col1.text_input('name', key='name')
         function = col2.selectbox('function', ('storage', 'recreational center', 'offices', 'emergency service',
                                                'school', 'others'), index=None, key='function')
-        building_shape = col1.selectbox('building_shape', ('rectangular/squared', 'C L T', 'circular or irregular'),
+        building_shape = col1.selectbox('building shape', ('rectangular/squared', 'C L T', 'circular or irregular'),
                                         index=None, key='building_shape')
         surface1floor = col2.number_input('surface1floor [m²]', min_value=0, step=200,
                                           key='surface1floor')
-        gross_volume = col1.number_input('gross_volume [m³]', min_value=0, step=1000,
+        gross_volume = col1.number_input('gross volume [m³]', min_value=0, step=1000,
                                          key='gross_volume')
         shading = col2.selectbox('shading', ('yes', 'no', 'partial'), index=None, key='shading')
         surrounding = col1.selectbox('surrounding', ('asfalt', 'green', 'other soil', 'half green/half asfalt'),
                                      index=None, key='surrounding')
-        avg_occupants = col2.number_input('avg_occupants [n]', min_value=0, step=10,
+        avg_occupants = col2.number_input('average occupants [n]', min_value=0, step=10,
                                           key='avg_occupants')
         usage = col1.selectbox('usage', ('rare', 'all year', 'half year'), index=None, key='usage')
-        generation_power = col2.number_input('generation_power [kW]', min_value=0, step=50, key='generation_power')
+        generation_power = col2.number_input('generation power [kW]', min_value=0, step=50, key='generation_power')
         ceiling = col1.selectbox('ceiling', ('present', 'not present'), index=None, key='ceiling')
         eui = col2.number_input('EUI [kWh/m²]', min_value=0.0, step=50.0, key='eui')
         submit_button = col1.form_submit_button('Submit', on_click=insert_new_data)
@@ -304,15 +304,15 @@ if uploaded_file is not None and (uploaded_file.name.endswith('.csv') or uploade
                                              index=None, key='building_shape_pred')
         surface1floor_pred = col1.number_input('surface1floor [m²]', min_value=0, step=200,
                                                key='surface1floor_pred')
-        gross_volume_pred = col2.number_input('gross_volume [m³]', min_value=0, step=1000,
+        gross_volume_pred = col2.number_input('gross volume [m³]', min_value=0, step=1000,
                                               key='gross_volume_pred')
         shading_pred = col1.selectbox('shading', ('yes', 'no', 'partial'), index=None, key='shading_pred')
         surrounding_pred = col2.selectbox('surrounding', ('asfalt', 'green', 'other soil', 'half green/half asfalt'),
                                           index=None, key='surrounding_pred')
-        avg_occupants_pred = col1.number_input('avg_occupants [n]', min_value=0, step=10,
+        avg_occupants_pred = col1.number_input('average occupants [n]', min_value=0, step=10,
                                                key='avg_occupants_pred')
         usage_pred = col2.selectbox('usage', ('rare', 'all year', 'half year'), index=None, key='usage_pred')
-        generation_power_pred = col1.number_input('generation_power [kW]', min_value=0, step=50, key='generation_power_pred')
+        generation_power_pred = col1.number_input('generation power [kW]', min_value=0, step=50, key='generation_power_pred')
         ceiling_pred = col2.selectbox('ceiling', ('present', 'not present'), index=None, key='ceiling_pred')
         submit_button_pred = col1.form_submit_button('Submit', on_click=prediction)
 
